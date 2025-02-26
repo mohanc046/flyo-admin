@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { notification } from "antd";
 import axios from "axios";
 import VideoRecorder from "react-video-recorder";
@@ -10,13 +10,14 @@ import "../AddProduct.scss";
 import { useDispatch } from "react-redux";
 import { hideSpinner, showSpinner } from "../../../store/reducers/spinnerSlice";
 import { showToast } from "../../../store/reducers/toasterSlice";
-import { BUCKET_NAME, s3 } from "../../../utils/awsConfig";
 import Button from "../../../components/Button/Button";
+import { uploadToS3 } from "../../../utils/awsConfig";
 
 const MAX_VIDEO_SIZE_MB = 99; // Maximum size in MB
 
 const UploadVideoStep = ({ updateStore, setActiveStep }) => {
   const dispatch = useDispatch();
+  const fileInputRef = useRef(null);
   const [isUpload, setIsUpload] = useState(true);
 
   const blobToFile = (theBlob, fileName = "video.mp4") => {
@@ -24,31 +25,6 @@ const UploadVideoStep = ({ updateStore, setActiveStep }) => {
       lastModified: new Date().getTime(),
       type: "video/mp4"
     });
-  };
-
-  const uploadToS3 = async (file) => {
-    try {
-      const params = {
-        Bucket: BUCKET_NAME, // Replace with your S3 bucket name
-        Key: `${Date.now()}-${file.name}`, // File name in S3
-        Body: file,
-        ContentType: file.type
-      };
-      return new Promise((resolve, reject) => {
-        s3.upload(params, (err, data) => {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(data.Location); // Return the file's URL
-          }
-        });
-      });
-    } catch (error) {
-      notification.open({
-        type: "warning",
-        message: "Facing issue with image upload!"
-      });
-    }
   };
 
   const handleMaxFileLimitReached = (videoSizeInMB) => {
@@ -73,7 +49,10 @@ const UploadVideoStep = ({ updateStore, setActiveStep }) => {
   const handleRecordedUpload = async (file) => {
     const formData = new FormData();
     formData.append("image", file);
-    await fileUpload(formData);
+    updateStore({
+      videoUrl: formData
+    });
+    // await fileUpload(formData);
   };
 
   const fileUpload = async (formData) => {
@@ -132,6 +111,12 @@ const UploadVideoStep = ({ updateStore, setActiveStep }) => {
     }
   };
 
+  const handleButtonClick = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
   return (
     <div className="d-flex flex-column align-items-center justify-content-center p-3">
       <div className="addProductDraggerContainer">
@@ -141,10 +126,16 @@ const UploadVideoStep = ({ updateStore, setActiveStep }) => {
           Or
         </label>
         <div className="d-flex gap-3">
-          <div className="position-relative">
-            <input onChange={handleFileUpload} className="file-input" type="file" />
-            <Button label="Browse" />
+          <div className="cursor-pointer">
+            <input
+              ref={fileInputRef}
+              type="file"
+              className="file-input hidden d-none"
+              onChange={handleFileUpload}
+            />
+            <Button label="Browse" className="cursor-pointer" onClick={handleButtonClick} />
           </div>
+
           <Button
             label="Record"
             onClick={() => {
@@ -172,10 +163,10 @@ const UploadVideoStep = ({ updateStore, setActiveStep }) => {
               onRecordingComplete={(videoBlob) => {
                 const videoSizeInMB = videoBlob.size / (1024 * 1024);
                 if (videoSizeInMB > MAX_VIDEO_SIZE_MB) {
-                  handleMaxFileLimitReached(videoSizeInMB);
+                  console.error(`File size too large: ${videoSizeInMB}MB`);
                   return;
                 }
-                handleRecordedUpload(blobToFile(videoBlob));
+                handleRecordedUpload(videoBlob);
               }}
             />
           </div>

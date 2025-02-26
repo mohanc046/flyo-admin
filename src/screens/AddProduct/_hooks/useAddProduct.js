@@ -8,6 +8,8 @@ import { getAuthToken } from "../../../utils/_hooks";
 import { useNavigate } from "react-router-dom";
 import _ from "lodash";
 import { INITIAL_STATE } from "../../Login/login.constants";
+import axios from "axios";
+import { uploadToS3 } from "../../../utils/awsConfig";
 
 export const useAddProduct = () => {
   const navigate = useNavigate();
@@ -132,18 +134,75 @@ export const useAddProduct = () => {
     }
   };
 
-  const uploadStepValidation = () => {
-    if (!mainState.productImage) {
-      dispatch(
-        showToast({
-          type: "error",
-          title: "Error",
-          message: "Product Image is required"
-        })
-      );
-      return true;
+  // const uploadStepValidation = () => {
+  //   if (!mainState.productImage) {
+  //     dispatch(
+  //       showToast({
+  //         type: "error",
+  //         title: "Error",
+  //         message: "Product Image is required"
+  //       })
+  //     );
+  //     return true;
+  //   }
+  //   return false;
+  // };
+
+  const uploadStepValidation = async () => {
+    try {
+      dispatch(showSpinner());
+      const URL = getServiceURL();
+      // Extract the file from FormData
+      const file = mainState?.videoUrl.get("image");
+      // Upload to S3
+      const productImage = await uploadToS3(file);
+
+      let transcript = "";
+
+      try {
+        const videoResponse = await axios.post(
+          `${URL}/fileupload/extract-video-text`,
+          {
+            videoUrl: productImage
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${getAuthToken()}`
+            }
+          }
+        );
+
+        transcript = videoResponse?.data?.transcript || ""; // Use empty string if no transcript is returned
+      } catch (extractionError) {
+        console.warn("Video extraction failed:", extractionError);
+        dispatch(
+          showToast({
+            type: "error",
+            title: "Error",
+            message: "Video extraction failed. Continuing with default values."
+          })
+        );
+      }
+
+      updateStore({
+        productDescription: transcript,
+        productImage: productImage
+      });
+
+      // Automatically move to the next step after upload
+      setActiveStep((prevStep) => prevStep + 1);
+      dispatch(hideSpinner());
+    } catch (error) {
+      dispatch(hideSpinner());
+      console.error("Error uploading file:", error);
+      showToast({
+        type: "error",
+        title: "Error",
+        message: "An error occurred while uploading the file."
+      });
+    } finally {
+      dispatch(hideSpinner());
     }
-    return false;
   };
 
   const detailsStepValidation = () => {

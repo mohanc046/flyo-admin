@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import UploadVideo from "../../../AddProduct/components/UploadVideoStep";
 import ProductDetails from "./components/ProductDetailsStep";
 import Done from "./components/DoneStep";
@@ -30,8 +30,7 @@ const AddProduct = () => {
       name: "Upload Product Video",
       component: <UploadVideo updateStore={updateStore} setActiveStep={setActiveStep} />,
       validate: () => uploadStepValidation(),
-      hideBackButton: true,
-      hideNextButon: true
+      hideBackButton: true
     },
     {
       name: "Add Details",
