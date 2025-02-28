@@ -5,12 +5,12 @@ export const fetchProducts = async ({
   storeName,
   limit = 10,
   page = 1,
-  category = "",
+  categoryType = "",
   searchText = "",
   sort = -1
 }) => {
   const response = await axios.get(
-    `${getServiceURL()}/product/all/${storeName}/?limit=${limit}&page=${page}&category=${category}&searchText=${searchText}&sort=${sort}`
+    `${getServiceURL()}/product/all/${storeName}/?limit=${limit}&page=${page}&category=${categoryType}&searchText=${searchText}&sort=${sort}`
   );
 
   return response.data;

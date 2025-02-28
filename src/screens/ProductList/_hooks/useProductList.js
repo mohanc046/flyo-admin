@@ -3,7 +3,7 @@ import { useDispatch } from "react-redux";
 import { setTitle } from "../../../store/reducers/headerTitleSlice";
 import Switch from "../../../components/Switch/Switch";
 import { useNavigate } from "react-router-dom";
-import { getStoreInfo } from "../../../utils/_hooks";
+import { getAuthToken, getStoreInfo } from "../../../utils/_hooks";
 import { fetchProducts } from "../../../utils/api.service";
 import ImgOrVideoRenderer from "../../../components/ImgOrVideoRenderer/ImgOrVideoRenderer";
 import { generateXlsxReport, getServiceURL, isImageUrl } from "../../../utils/utils";
@@ -36,14 +36,16 @@ export const useProductList = () => {
     storeName: getStoreInfo()?.store?.domainName || "DefaultStore",
     currentPage: 1,
     limit: 10,
-    categoryType: "ALL",
+    categoryType: "",
     searchText: "",
     activeStatusTab: null,
     sort: -1
   });
+  const [categoryList, setCategoryList] = useState([]);
 
   useEffect(() => {
     dispatch(setTitle("All Products"));
+    getCategoryList();
   }, []);
 
   useEffect(() => {
@@ -176,6 +178,33 @@ export const useProductList = () => {
       dispatch(hideSpinner());
     } finally {
       dispatch(hideSpinner());
+    }
+  };
+
+  const getCategoryList = async () => {
+    try {
+      const response = await fetch(`${getServiceURL()}/category`, {
+        method: "GET",
+        headers: { Authorization: `Bearer ${getAuthToken()}` }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const categoryList = _.get(data, "categoryList", []);
+
+        const list = [
+          { value: "", label: "ALL" },
+          ...categoryList.map((e) => ({
+            value: e.value,
+            label: e.key
+          }))
+        ];
+
+        setCategoryList(list);
+      }
+    } catch (error) {
+      dispatch(showToast({ type: "error", title: "Error", message: "Failed: Getting Categories" }));
+      console.log("Error:", error);
     }
   };
 
@@ -332,6 +361,7 @@ export const useProductList = () => {
     handleFileChange,
     downloadReport,
     showModal,
-    setShowModal
+    setShowModal,
+    categoryList
   };
 };

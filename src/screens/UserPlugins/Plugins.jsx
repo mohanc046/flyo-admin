@@ -27,7 +27,7 @@ const Plugins = () => {
           {filteredPlugins.length > 0 ? (
             filteredPlugins.map((plugin, index) => (
               <Col key={index} style={{ marginBottom: "10px" }}>
-                <PluginCard details={plugin} />
+                <PluginCard details={plugin} toggle={toggle} />
               </Col>
             ))
           ) : (
