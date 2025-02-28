@@ -7,8 +7,6 @@ import HorizontalHeader from "./header/HorizontalHeader";
 import HorizontalSidebar from "./sidebars/horizontal/HorizontalSidebar";
 import Toaster from "../components/Toaster/Toaster";
 import Spinner from "../components/Spinner/Spinner";
-import TawkMessengerReact from "@tawk.to/tawk-messenger-react";
-import { FloatingWhatsApp } from "react-floating-whatsapp";
 import { getStoreInfo } from "../utils/_hooks";
 import _ from "lodash";
 import { ToggleMobileSidebar } from "../store/customizer/CustomizerSlice";
@@ -69,17 +67,6 @@ const FullLayout = () => {
             {/* <Customizer className={customizerToggle ? "showCustomizer" : ""} /> */}
             {showMobileSidebar || customizerToggle ? <div className="sidebarOverlay" /> : ""}
           </Container>
-        </div>
-
-        <div className="position-absolute">
-          {isNotAdmin && isTawkActive && propertyId && widgetId && (
-            <TawkMessengerReact propertyId={propertyId} widgetId={widgetId} />
-          )}
-
-          {/* Floating WhatsApp Integration */}
-          {isNotAdmin && isWhatsAppActive && phoneNumber && userName && (
-            <FloatingWhatsApp phoneNumber={phoneNumber} accountName={userName} />
-          )}
         </div>
       </div>
     </main>

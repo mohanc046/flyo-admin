@@ -103,9 +103,7 @@ export const useProductList = () => {
 
       const { statusCode = 500, message = "Issue while Bulk upload!" } = response.data || {};
 
-      console.log(response.data, "djaskdj", response.data?.statusCode);
-
-      if (response.data?.statusCode === 200) {
+      if (response.data?.statusCode == 200) {
         dispatch(showToast({ type: "success", title: "Success", message: message }));
         showModal(true);
         loadProducts(payload);
@@ -116,6 +114,7 @@ export const useProductList = () => {
       console.error("Error uploading file:", error);
     } finally {
       dispatch(hideSpinner());
+      loadProducts(payload);
     }
   };
 
