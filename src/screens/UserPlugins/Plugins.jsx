@@ -10,6 +10,7 @@ import PluginCard from "./components/PluginCard";
 import TawkModal from "./components/TawkModal";
 import GoogleAnalyticsModal from "./components/GoogleAnalyticsModal";
 import WhatsAppModal from "./components/WhatsAppModal";
+import InstagramModal from "./components/InstagramModal";
 
 const Plugins = () => {
   const { handleCategorySelect, toggle, currentPlugin, modal, filteredPlugins, selectedCategory } =
@@ -23,10 +24,10 @@ const Plugins = () => {
           onSelect={handleCategorySelect}
           currentCategory={selectedCategory}
         />
-        <Row className="d-flex flex-wrap mt-4 card-container">
+        <Row className="d-flex mt-4 row card-container">
           {filteredPlugins.length > 0 ? (
             filteredPlugins.map((plugin, index) => (
-              <Col key={index} style={{ marginBottom: "10px" }}>
+              <Col key={index} className="mb-3" md={12} lg={12} xxl={4}>
                 <PluginCard details={plugin} toggle={toggle} />
               </Col>
             ))
@@ -45,6 +46,8 @@ const Plugins = () => {
           <GoogleAnalyticsModal />
         ) : currentPlugin === "WhatsApp" ? (
           <WhatsAppModal />
+        ) : currentPlugin === "Instagram Media Management" ? (
+          <InstagramModal />
         ) : null}
       </Modal>
     </OutletCard>
