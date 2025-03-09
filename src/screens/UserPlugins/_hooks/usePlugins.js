@@ -3,6 +3,7 @@ import { useDispatch } from "react-redux";
 import { setTitle } from "../../../store/reducers/headerTitleSlice";
 import { config } from "../../../config";
 import whatsAppLogo from "../../../assets/images/whatsapp-logo.svg";
+import instaLogo from "../../../assets/images/insta.png";
 import axios from "axios";
 import { getServiceURL } from "../../../utils/utils";
 import { showToast } from "../../../store/reducers/toasterSlice";
@@ -19,7 +20,7 @@ export const usePlugins = () => {
   const [selectedCategory, setSelectedCategory] = useState("ALL");
   const { store } = getStoreInfo() || {};
   const { pluginConfig = {} } = store || {};
-  const { tawk, googleAnalytics, whatsApp } = pluginConfig;
+  const { tawk, googleAnalytics, whatsApp, instagram } = pluginConfig;
 
   const PluginConfig = [
     {
@@ -48,6 +49,15 @@ export const usePlugins = () => {
       isActive: whatsApp?.isActive,
       uninstallAction: () => uninstallWhatsAppPluginConfig(),
       category: ["Customer Support"]
+    },
+    {
+      title: "Instagram Media Management",
+      description:
+        "Enable Instagram to connect your business profile, manage media, and showcase your products seamlessly.",
+      image: instaLogo,
+      isActive: instagram?.isActive,
+      uninstallAction: () => uninstallInstagramPluginConfig(),
+      category: ["Marketing", "Social Media"]
     }
   ];
 
@@ -98,7 +108,7 @@ export const usePlugins = () => {
           showToast({
             type: "success",
             title: "Successs",
-            message: "Plugin uninstall successfully!"
+            message: "Plugin uninstalled successfully!"
           })
         );
         dispatch(hideSpinner());
@@ -225,6 +235,62 @@ export const usePlugins = () => {
         showToast({ type: "error", title: "Error", message: "Issue while uninstall plugin!" })
       );
       dispatch(hideSpinner());
+    }
+  };
+
+  const uninstallInstagramPluginConfig = async () => {
+    try {
+      dispatch(showSpinner());
+      const storeInfo = JSON.parse(localStorage.getItem("storeInfo"));
+      if (!storeInfo || !storeInfo.store || !storeInfo.store.domainName) {
+        throw new Error("Invalid store information.");
+      }
+
+      const storeName = storeInfo.store.domainName;
+
+      const requestPayload = { pluginType: "INSTAGRAM", isActive: false };
+
+      const response = await axios.put(
+        `${getServiceURL()}/store/plugin/config/${storeName}`,
+        requestPayload
+      );
+
+      const { statusCode = 500, message = "Issue while update plugin config!" } =
+        response.data || {};
+
+      if (statusCode === 200) {
+        const updatedStoreInfo = {
+          ...storeInfo,
+          store: {
+            ...storeInfo.store,
+            pluginConfig: {
+              ...storeInfo.store?.pluginConfig,
+              instagram: requestPayload
+            }
+          }
+        };
+
+        localStorage.setItem("storeInfo", JSON.stringify(updatedStoreInfo));
+        dispatch(
+          showToast({
+            type: "success",
+            title: "Successs",
+            message: "Plugin uninstalled successfully!"
+          })
+        );
+        dispatch(hideSpinner());
+        navigate("/home");
+        return;
+      } else {
+        dispatch(hideSpinner());
+        return notification.open({ type: "warning", message });
+      }
+    } catch (error) {
+      dispatch(hideSpinner());
+      notification.open({ type: "warning", message: "Issue while configuring plugin!" });
+      dispatch(
+        showToast({ type: "error", title: "Error", message: "Issue while uninstall plugin!" })
+      );
     }
   };
 

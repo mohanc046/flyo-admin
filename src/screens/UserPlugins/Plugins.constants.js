@@ -3,5 +3,6 @@ export const pluginsCategories = [
   { label: "Manage Store", value: "Manage Store" },
   { label: "Shipping", value: "Shipping" },
   { label: "Marketing", value: "Marketing" },
-  { label: "Customer Support", value: "Customer Support" }
+  { label: "Customer Support", value: "Customer Support" },
+  { label: "Social Media", value: "Social Media" }
 ];
