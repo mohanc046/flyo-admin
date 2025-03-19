@@ -3,7 +3,7 @@ import { notification } from "antd";
 import axios from "axios";
 import VideoRecorder from "react-video-recorder";
 import _ from "lodash";
-import { getServiceURL } from "../../../utils/utils";
+import { getServiceURL, processAndUploadVideo } from "../../../utils/utils";
 import { getAuthToken } from "../../../utils/_hooks";
 import { config } from "../../../config";
 import "../AddProduct.scss";
@@ -62,7 +62,7 @@ const UploadVideoStep = ({ updateStore, setActiveStep }) => {
       // Extract the file from FormData
       const file = formData.get("image");
       // Upload to S3
-      const productImage = await uploadToS3(file);
+      const productImage = await processAndUploadVideo(file);
 
       let transcript = "";
 

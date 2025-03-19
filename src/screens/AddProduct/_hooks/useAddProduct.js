@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { setTitle } from "../../../store/reducers/headerTitleSlice";
 import { showToast } from "../../../store/reducers/toasterSlice";
-import { formatDomainName, getServiceURL } from "../../../utils/utils";
+import { formatDomainName, getServiceURL, processAndUploadVideo } from "../../../utils/utils";
 import { hideSpinner, showSpinner } from "../../../store/reducers/spinnerSlice";
 import { getAuthToken } from "../../../utils/_hooks";
 import { useNavigate } from "react-router-dom";
@@ -155,7 +155,8 @@ export const useAddProduct = () => {
       // Extract the file from FormData
       const file = mainState?.videoUrl.get("image");
       // Upload to S3
-      const productImage = await uploadToS3(file);
+
+      const productImage = await processAndUploadVideo(file);
 
       let transcript = "";
 
