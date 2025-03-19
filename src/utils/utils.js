@@ -3,6 +3,10 @@ import moment from "moment";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import currencyFormatter from "currency-formatter";
+import { uploadToS3 } from "./awsConfig";
+import { notification } from "antd";
+import { FFmpeg } from "@ffmpeg/ffmpeg";
+import { fetchFile } from "@ffmpeg/util";
 
 export const getUserType = () => {
   let baseURL = window.location.pathname;
@@ -91,12 +95,63 @@ export const generateXlsxReport = (data, fileName) => {
   saveAs(blob, `${fileName}.xlsx`);
 };
 
-
 export const formatDomainName = (domain) => {
   // Remove spaces, special characters, and ensure the domain starts and ends without hyphens
   return domain
-    .toLowerCase()                     // Convert to lowercase
-    .replace(/\s+/g, '')                // Remove spaces
-    .replace(/[^a-z0-9\-]/g, '')        // Remove special characters
-    .replace(/^-+|-+$/g, '');           // Remove leading and trailing hyphens
-}
+    .toLowerCase() // Convert to lowercase
+    .replace(/\s+/g, "") // Remove spaces
+    .replace(/[^a-z0-9\-]/g, "") // Remove special characters
+    .replace(/^-+|-+$/g, ""); // Remove leading and trailing hyphens
+};
+
+export const processAndUploadVideo = async (file) => {
+  const ffmpeg = new FFmpeg();
+
+  try {
+    if (!ffmpeg.loaded) {
+      await ffmpeg.load();
+    }
+
+    // Load file into FFmpeg
+    ffmpeg.writeFile("input.mp4", await fetchFile(file));
+
+    // Apply video processing
+    await ffmpeg.exec([
+      "-i",
+      "input.mp4",
+      "-c:v",
+      "libx264",
+      "-b:v",
+      "3500k",
+      "-r",
+      "30",
+      "-preset",
+      "fast",
+      "-c:a",
+      "aac",
+      "-b:a",
+      "128k",
+      "-ar",
+      "44100",
+      "-vf",
+      "scale=1080:1920",
+      "output.mp4"
+    ]);
+
+    // Get the processed video
+    const data = await ffmpeg.readFile("output.mp4");
+
+    // Convert to a Blob & File
+    const videoBlob = new Blob([data], { type: "video/mp4" });
+    const processedFile = new File([videoBlob], `processed-${file.name}`, { type: "video/mp4" });
+
+    // Upload to S3
+    return uploadToS3(processedFile);
+  } catch (error) {
+    console.error("Video processing failed:", error);
+    notification.open({
+      type: "warning",
+      message: "Error processing video before upload!"
+    });
+  }
+};

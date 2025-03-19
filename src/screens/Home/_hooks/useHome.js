@@ -93,7 +93,7 @@ export const useHome = () => {
   };
 
   const onApplySortFilter = (sort) => {
-    const updatedSortValue = sort > 0 ? -1 : 1;
+    const updatedSortValue = sort === 1 ? -1 : 1;
     setPayload((prevState) => ({ ...prevState, sort: updatedSortValue }));
   };
 
