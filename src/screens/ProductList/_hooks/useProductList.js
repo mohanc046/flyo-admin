@@ -52,6 +52,17 @@ export const useProductList = () => {
     loadProducts(payload);
   }, [payload]);
 
+  const handleSampleFileDownload = () => {
+    const fileUrl = "/product_bulk_upload.csv";
+
+    const link = document.createElement("a");
+    link.href = fileUrl;
+    link.download = "product_bulk_upload.csv";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const handleButtonClick = () => {
     if (fileInputRef.current) {
       fileInputRef.current.click();
@@ -361,6 +372,7 @@ export const useProductList = () => {
     downloadReport,
     showModal,
     setShowModal,
-    categoryList
+    categoryList,
+    handleSampleFileDownload
   };
 };
