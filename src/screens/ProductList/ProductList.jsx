@@ -35,7 +35,8 @@ const ProductList = () => {
     downloadReport,
     showModal,
     setShowModal,
-    categoryList
+    categoryList,
+    handleSampleFileDownload
   } = useProductList();
 
   return (
@@ -48,6 +49,11 @@ const ProductList = () => {
         />
 
         <div className="d-flex align-items-center gap-3 bg-light flex-wrap">
+          <Button
+            label="Sample CSV File"
+            icon={<Icon.FileText size={15} />}
+            onClick={() => handleSampleFileDownload()}
+          />
           <Button
             label="Bulk Upload"
             icon={<Icon.File size={15} />}
