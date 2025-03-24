@@ -14,7 +14,7 @@ const InstagramModal = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [formValues, setFormValues] = useState({
-    instagramUsername: "",
+    instagramAccountId: "",
     accessToken: ""
   });
 
@@ -40,7 +40,7 @@ const InstagramModal = () => {
 
       const requestPayload = {
         pluginType: "INSTAGRAM",
-        instagramUsername: formValues.instagramUsername,
+        instagramAccountId: formValues.instagramAccountId,
         accessToken: formValues.accessToken,
         isActive: true
       };
@@ -97,13 +97,13 @@ const InstagramModal = () => {
           </Col>
           <Col md={6}>
             <FormGroup>
-              <Label htmlFor="instagramUsername">Instagram Username</Label>
+              <Label htmlFor="instagramAccountId">Instagram Account ID</Label>
               <Input
                 className="form-control"
                 type="text"
-                name="instagramUsername"
-                id="instagramUsername"
-                value={formValues.instagramUsername}
+                name="instagramAccountId"
+                id="instagramAccountId"
+                value={formValues.instagramAccountId}
                 onChange={handleChange}
                 required
               />
@@ -136,7 +136,7 @@ const InstagramModal = () => {
               <li>Go to Facebook Business Settings and connect your Instagram account.</li>
               <li>Generate an Access Token from the Facebook Developer portal.</li>
               <li>
-                Copy the Instagram Username and Access Token and paste them in the fields above.
+                Copy the Instagram Account ID and Access Token and paste them in the fields above.
               </li>
               <li>Click Configure, and your Instagram feed should now be integrated!</li>
             </ol>
