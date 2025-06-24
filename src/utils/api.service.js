@@ -45,3 +45,24 @@ export const getCustomersByUserId = async ({
   );
   return response.data;
 };
+
+
+export const getSubscriptionHistory = async ({
+  storeName,
+  limit = 10,
+  page = 1,
+  sort = -1
+}) => {
+  const response = await axios.get(
+    `${getServiceURL()}/stripe/subscription-list/${storeName}/?limit=${limit}&page=${page}&sort=${sort}`
+  );
+  return response.data;
+};
+
+export const initiatePaymentSubscription = async (payload) => {
+  const response = await axios.post(
+    `${getServiceURL()}/subscription/create-subscription`,
+    payload
+  );
+  return response.data;
+};
