@@ -22,6 +22,7 @@ const AddProduct = Loadable(lazy(() => import("../screens/AddProduct/AddProduct.
 const OnlineShop = Loadable(lazy(() => import("../screens/OnlineShop/OnlineShop.jsx")));
 const Payments = Loadable(lazy(() => import("../screens/UserPayment/Payments.jsx")));
 const Customers = Loadable(lazy(() => import("../screens/Customers/Customers.jsx")));
+const Subscription = Loadable(lazy(() => import("../screens/Subscription/Subscription.jsx")));
 const Plugins = Loadable(lazy(() => import("../screens/UserPlugins/Plugins.jsx")));
 const Discounts = Loadable(lazy(() => import("../screens/Discounts/Discounts.jsx")));
 const Settings = Loadable(lazy(() => import("../screens/Settings/Settings.jsx")));
@@ -56,6 +57,7 @@ const ThemeRoutes = () => {
               { path: "/online-shop", element: <OnlineShop /> },
               { path: "/payments", element: <Payments /> },
               { path: "/customers", element: <Customers /> },
+              { path: "/subscription", element: <Subscription /> },
               { path: "/plugins", element: <Plugins /> },
               { path: "/discounts", element: <Discounts /> },
               { path: "/settings", element: <Settings /> },

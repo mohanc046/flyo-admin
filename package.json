@@ -21,6 +21,8 @@
     "@mui/material": "^6.3.0",
     "@react-oauth/google": "^0.12.1",
     "@reduxjs/toolkit": "^1.8.2",
+    "@stripe/react-stripe-js": "^3.7.0",
+    "@stripe/stripe-js": "^7.4.0",
     "@tawk.to/tawk-messenger-react": "^2.0.2",
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "^13.3.0",
