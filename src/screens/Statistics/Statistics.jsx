@@ -23,7 +23,7 @@ import { Col, Form, Input, Menu, Row, Segmented } from "antd";
 import { MenuOutlined } from "@ant-design/icons";
 import { getAuthToken } from "../../utils/_hooks";
 
-const currentYear = new Date().getFullYear(); 
+const currentYear = new Date().getFullYear();
 
 const Statistics = (props) => {
   const { TextArea } = Input;
@@ -50,7 +50,7 @@ const Statistics = (props) => {
     return (
       <div className="banner-container">
         <div className="header d-flex justify-content-between align-items-center">
-          <div className="img-container logo" onClick={()=> navigate('/home')}>
+          <div className="img-container logo" onClick={() => navigate("/home")}>
             <img src={config.LOGO_BLUE} alt="" />
           </div>
           <div className="btn-grp">
@@ -97,7 +97,7 @@ const Statistics = (props) => {
                     label: (
                       <button
                         className="btn btn-primary-color-bg"
-                        onClick={() => navigate("/logout")}>
+                        onClick={() => navigate("/login")}>
                         Login
                       </button>
                     )
@@ -656,7 +656,7 @@ const Statistics = (props) => {
             </Col>
           </Row>
           <Row>
-          <p className="copyrights">Copyright © {currentYear} Flyashop. All Rights Reserved. </p>
+            <p className="copyrights">Copyright © {currentYear} Flyashop. All Rights Reserved. </p>
           </Row>
         </Col>
       </Row>
