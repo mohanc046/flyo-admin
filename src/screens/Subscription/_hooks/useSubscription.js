@@ -4,15 +4,20 @@ import { setTitle } from "../../../store/reducers/headerTitleSlice";
 import { getSubscriptionHistory, initiatePaymentSubscription } from "../../../utils/api.service";
 import { getStoreInfo } from "../../../utils/_hooks";
 import _ from "lodash";
+import "../Subscription.scss";
 import moment from "moment";
 
-export const useCustomer = () => {
+export const useSubscription = () => {
   const dispatch = useDispatch();
   const categories = [{ label: "All", value: "ALL" }];
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [totalItems, setTotalItems] = useState(null);
   const debounceRef = useRef(null);
+  const [formModal, setFormModal] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState();
+
+  const toggle = () => setFormModal(!formModal);
 
   const [state, setState] = useState({
     loaderStatus: false,
@@ -34,17 +39,16 @@ export const useCustomer = () => {
   const handleCategorySelect = (category) => {
     console.log("Selected Category:", category);
   };
-  
 
   useEffect(() => {
-    dispatch(setTitle("All Customers"));
+    dispatch(setTitle("Subscription"));
   }, []);
 
   useEffect(() => {
-    loadCustomers(payload);
+    loadSubscriptions(payload);
   }, [payload]);
 
-  const loadCustomers = async (payload) => {
+  const loadSubscriptions = async (payload) => {
     try {
       setState((prevState) => ({ ...prevState, loaderStatus: true }));
 
@@ -58,7 +62,7 @@ export const useCustomer = () => {
           endDate: moment(item.endDate).format("DD MMM YYYY"),
           invoicePdfUrl: item.invoicePdf,
           paymentLinkUrl: item.paymentLink,
-          status: item.status,
+          status: item.status
         }));
       }
 
@@ -73,20 +77,19 @@ export const useCustomer = () => {
 
   const initiatePaymentSchedule = async (payload) => {
     try {
-
       setState((prevState) => ({ ...prevState, paymentLoaderStatus: true }));
 
       const response = await initiatePaymentSubscription(payload);
 
       if (_.get(response, "statusCode") === "success") {
-
         setState((prevState) => ({
           ...prevState,
           isSubscriptionCreationSuccess: true
         }));
-
+        setTimeout(() => {
+          setFormModal(false);
+        }, 2000);
       } else {
-
         setState((prevState) => ({
           ...prevState,
           isSubscriptionCreationSuccess: false,
@@ -108,57 +111,65 @@ export const useCustomer = () => {
         <span className="text-truncate" title={value}>
           {value}
         </span>
-      ),
+      )
     },
     {
       label: "Customer ID",
       key: "customerId",
-      render: (value) => <span className="text-muted">{value}</span>,
+      render: (value) => <span className="text-muted">{value}</span>
     },
     {
       label: "Start Date",
       key: "startDate",
-      render: (value) => <span>{value}</span>,
+      render: (value) => <span>{value}</span>
     },
     {
       label: "End Date",
       key: "endDate",
-      render: (value) => <span>{value}</span>,
+      render: (value) => <span>{value}</span>
     },
     {
       label: "Invoice",
       key: "invoicePdfUrl",
       render: (value) =>
         value ? (
-          <a href={value} target="_blank" rel="noopener noreferrer" className="btn btn-sm btn-outline-primary">
+          <a
+            href={value}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn btn-sm btn-outline-primary">
             View PDF
           </a>
         ) : (
           "-"
-        ),
+        )
     },
     {
       label: "Payment Link",
       key: "paymentLinkUrl",
       render: (value) =>
         value ? (
-          <a href={value} target="_blank" rel="noopener noreferrer" className="btn btn-sm btn-outline-primary">
+          <a
+            href={value}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn btn-sm btn-outline-primary">
             Pay Now
           </a>
         ) : (
           "-"
-        ),
+        )
     },
     {
       label: "Status",
       key: "status",
-      render: (value) => {
-        const statusClass = value === "complete" ? "text-success" : "text-warning";
-        return <span className={statusClass}>{value}</span>;
-      },
-    },
+      render: (value) => (
+        <span className={`status-badge ${value?.toLowerCase().replaceAll("_", "-")}`}>
+          {value?.replaceAll("_", " ").toUpperCase()}
+        </span>
+      )
+    }
   ];
-
 
   const onApplySortFilter = (sort) => {
     const updatedSortValue = sort > 0 ? -1 : 1;
@@ -196,6 +207,12 @@ export const useCustomer = () => {
     setPayload((prevState) => ({ ...prevState, currentPage: page }));
   };
 
+  const handleButtonClick = (plan, billingCycle) => {
+    setSelectedPlan({ ...plan, cycle: billingCycle });
+    setFormModal(true);
+    console.log({ ...plan, cycle: billingCycle });
+  };
+
   return {
     categories,
     handleCategorySelect,
@@ -211,6 +228,9 @@ export const useCustomer = () => {
     currentPage,
     totalItems,
     rowsPerPage,
-    initiatePaymentSchedule
+    initiatePaymentSchedule,
+    handleButtonClick,
+    formModal,
+    toggle
   };
 };

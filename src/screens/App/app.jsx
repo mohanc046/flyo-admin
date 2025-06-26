@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
 import Login from "../Login/login";
 
-import '../../assets/scss/style.scss';
+import "../../assets/scss/style.scss";
 
 import Home from "../Home/home";
 
@@ -28,7 +28,7 @@ import Banner from "../Banner/Banner";
 
 import Customer from "../Customer/Customer";
 
-import _ from 'lodash';
+import _ from "lodash";
 
 import { useStoreState } from "../../store/hooks";
 
@@ -48,20 +48,19 @@ import Statistics from "../Statistics/Statistics";
 import { StoreProductPreviewScreen } from "../StoreProductPreview/storeProductPreview";
 import EditProduct from "../EditProduct/edit-products";
 import VoucherContainer from "../VoucherList";
-import TawkMessengerReact from '@tawk.to/tawk-messenger-react';
+import TawkMessengerReact from "@tawk.to/tawk-messenger-react";
 import { useEffect } from "react";
-import ReactGA from 'react-ga';
-import { FloatingWhatsApp } from 'react-floating-whatsapp'
+import ReactGA from "react-ga";
+import { FloatingWhatsApp } from "react-floating-whatsapp";
 import POSHome from "../POS/POSHome";
 import POSOrders from "../POS/POSOrders/POSOrders";
 import POSCustomers from "../POS/POSCustomers/POSCustomers";
 import POSDiscounts from "../POS/POSDiscounts/POSDiscounts";
 
 export default function App() {
+  let loginStoreDetails = useStoreState((state) => state.user);
 
-  let loginStoreDetails = useStoreState(state => state.user);
-
-  let shopInformation = useStoreState(state => state.shop.data);
+  let shopInformation = useStoreState((state) => state.shop.data);
 
   const { existingStoreInfo = [] } = loginStoreDetails.data;
 
@@ -71,23 +70,29 @@ export default function App() {
 
   const { pluginConfig = {}, storeInformation: exisintgShopInformation = {} } = shopInformation;
 
-  const { propertyId = null, widgetId = null, isActive = false } = _.get(pluginConfig, 'tawk', {});
+  const { propertyId = null, widgetId = null, isActive = false } = _.get(pluginConfig, "tawk", {});
 
-  const { propertyId: googleAnalyticsTrackingId = null, isActive: isGoogleAnalyticsActive = false } = _.get(pluginConfig, 'googleAnalytics', {});
+  const {
+    propertyId: googleAnalyticsTrackingId = null,
+    isActive: isGoogleAnalyticsActive = false
+  } = _.get(pluginConfig, "googleAnalytics", {});
 
-  const { phoneNumber = null, isActive: isWhatsAppActive = false, userName = "" } = _.get(pluginConfig, 'whatsApp', {});
+  const {
+    phoneNumber = null,
+    isActive: isWhatsAppActive = false,
+    userName = ""
+  } = _.get(pluginConfig, "whatsApp", {});
 
-  const isNotAdmin = !_.isEmpty(exisintgShopInformation)
+  const isNotAdmin = !_.isEmpty(exisintgShopInformation);
 
   useEffect(() => {
     if (!_.isEmpty(googleAnalyticsTrackingId) && isGoogleAnalyticsActive && isNotAdmin) {
       ReactGA.initialize(`${googleAnalyticsTrackingId}`);
       ReactGA.pageview(window.location.pathname + window.location.search);
     }
-  }, [googleAnalyticsTrackingId, isGoogleAnalyticsActive, isNotAdmin])
+  }, [googleAnalyticsTrackingId, isGoogleAnalyticsActive, isNotAdmin]);
 
-  const authToken = localStorage.getItem('token');
-
+  const authToken = localStorage.getItem("token");
 
   return (
     <Router>
@@ -105,7 +110,6 @@ export default function App() {
         <Route path="/preview" element={<ProductPreview />} />
         <Route path="/welcome-screen" element={<WelcomeScreen />} />
         <Route path="/payment/success/:storeId" element={<PaymentSuccessCard />} />
-        <Route path="/pricing-list" element={<Pricing />} />
         <Route path="/store/preview" element={<StoreProductPreviewScreen />} />
         <Route path="/logout" element={<Logout />} />
         <Route path="/pos/home" element={<POSHome />} />
@@ -113,7 +117,7 @@ export default function App() {
         <Route path="/pos/customers" element={<POSCustomers />} />
         <Route path="/pos/discounts" element={<POSDiscounts />} />
         <Route path="/*" element={<Statistics />} />
-
+        <Route path="/pricing-list" element={<Pricing />} />
 
         {authToken ? (
           /* Routes for authenticated users */
@@ -129,7 +133,10 @@ export default function App() {
             <Route path="/user-payment" element={<UserPayment name="Payments" />} />
             <Route path="/user-customer" element={<Customer />} />
             <Route path="/user-plugins" element={<UserPlugins />} />
-            <Route path="/banner" element={<Banner authToken={authToken} businessName={businessName} />} />
+            <Route
+              path="/banner"
+              element={<Banner authToken={authToken} businessName={businessName} />}
+            />
             <Route path="/user-cart" element={<UserCart />} />
             <Route path="/tracking" element={<Tracking />} />
             <Route path="/shipping" element={<Shipping />} />
@@ -144,19 +151,19 @@ export default function App() {
         ) : (
           <>
             <Route path="/*" element={<Statistics />} />
+            <Route path="/pricing-list" element={<Pricing />} />
           </>
         )}
       </Routes>
 
       {/* Include the TawkMessengerReact component outside of Routes */}
-      {isNotAdmin && propertyId && widgetId && isActive && <TawkMessengerReact
-        propertyId={propertyId}
-        widgetId={widgetId}
-      />}
+      {isNotAdmin && propertyId && widgetId && isActive && (
+        <TawkMessengerReact propertyId={propertyId} widgetId={widgetId} />
+      )}
 
-      {isNotAdmin && phoneNumber && isWhatsAppActive && userName && <FloatingWhatsApp phoneNumber={`${phoneNumber}`} accountName={`${userName}`} />}
-
+      {isNotAdmin && phoneNumber && isWhatsAppActive && userName && (
+        <FloatingWhatsApp phoneNumber={`${phoneNumber}`} accountName={`${userName}`} />
+      )}
     </Router>
-  )
+  );
 }
-

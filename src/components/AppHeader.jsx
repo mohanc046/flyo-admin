@@ -35,18 +35,20 @@ const AppHeader = ({
   navigateToProductList = () => null,
   openDiscountModal = () => null
 }) => {
+  const fileInputRef = useRef(null);
+
+  const navigate = useNavigate();
+
+  const [isLoader, setIsLoader] = useState(false);
+
   console.log("🚀 ~ heading:", heading);
 
   if (heading == "") return null;
-
-  const [isLoader, setIsLoader] = useState(false);
 
   const userInfo = getUserProfile();
 
   const { businessName = "" } = _.get(userInfo, "existingStoreInfo[0].store", {});
   const showBreadCrumb = isMobileView();
-
-  const navigate = useNavigate();
 
   const handleSampleFileDownload = () => {
     // Direct URL to the file in the public directory
@@ -61,7 +63,6 @@ const AppHeader = ({
     document.body.removeChild(link); // Remove from the body after triggering download
   };
 
-  const fileInputRef = useRef(null);
   const handleButtonClick = () => {
     if (fileInputRef.current) {
       fileInputRef.current.click();

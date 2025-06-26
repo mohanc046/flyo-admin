@@ -9,7 +9,7 @@ const OutletCard = ({ children, title, subtitle }) => {
         {title}
       </CardTitle>
 
-      <CardBody className="py-0">
+      <CardBody className="py-0 px-2">
         <CardSubtitle className="text-muted mb-3">{subtitle || ""}</CardSubtitle>
         <div>{children}</div>
       </CardBody>

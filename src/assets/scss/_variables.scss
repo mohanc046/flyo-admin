@@ -14,6 +14,16 @@ $warning: #fec107;
 $purple: #ab8ce4;
 $cyan: #01c0c8;
 
+$primary-100: lighten($primary, 40%); 
+$primary-200: lighten($primary, 30%);
+$primary-300: lighten($primary, 20%);
+$primary-400: lighten($primary, 10%);
+$primary-500: $primary;
+$primary-600: darken($primary, 5%);
+$primary-700: darken($primary, 10%);
+$primary-800: darken($primary, 15%);
+$primary-900: darken($primary, 20%);
+
 // scss-docs-start gray-color-variables
 $white: #fff !default;
 $gray-100: #f8f9fa !default;
