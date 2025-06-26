@@ -43,10 +43,10 @@ const SidebarData = [
     id: 6,
     collapisble: false
   },
-    {
+  {
     title: "Subscription",
     href: "/subscription",
-    icon: <Icon.Users />,
+    icon: <Icon.Calendar />,
     id: 11,
     collapisble: false
   },

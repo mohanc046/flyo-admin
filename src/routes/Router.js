@@ -5,6 +5,7 @@ import { getAuthToken, getStoreInfo } from "../utils/_hooks/index.js";
 import Logout from "../screens/Logout.jsx";
 import { useSelector } from "react-redux";
 import _ from "lodash";
+import Pricing from "../screens/Pricing/index.jsx";
 
 /***** Layouts *****/
 const FullLayout = Loadable(lazy(() => import("../layouts/FullLayout.js")));
@@ -62,15 +63,16 @@ const ThemeRoutes = () => {
               { path: "/discounts", element: <Discounts /> },
               { path: "/settings", element: <Settings /> },
               { path: "/sign-out", element: <Logout /> },
-              { path: "/*", element: <Home /> },
+              { path: "/*", element: <Home /> }
             ]
           : [
               { path: "/login", element: <Login /> },
-              { path: "/home", element:<Landing />  },
+              { path: "/home", element: <Landing /> },
               { path: "/login", element: <Navigate to="/" /> },
               { path: "", element: <Landing /> },
               { path: "/", element: <Landing /> },
-              { path: "/*", element: <Landing /> }
+              { path: "/*", element: <Landing /> },
+              { path: "/pricing-list", element: <Pricing /> }
             ]
     },
     {
@@ -81,7 +83,6 @@ const ThemeRoutes = () => {
 };
 
 export default ThemeRoutes;
-
 
 /**
  * 
