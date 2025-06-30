@@ -156,7 +156,8 @@ export const useAddProduct = () => {
       const file = mainState?.videoUrl.get("image");
       // Upload to S3
 
-      const productImage = await processAndUploadVideo(file);
+      // const productImage = await processAndUploadVideo(file);
+      const productImage = await uploadToS3(file);
 
       let transcript = "";
 

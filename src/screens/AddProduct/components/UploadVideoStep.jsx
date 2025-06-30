@@ -62,7 +62,8 @@ const UploadVideoStep = ({ updateStore, setActiveStep }) => {
       // Extract the file from FormData
       const file = formData.get("image");
       // Upload to S3
-      const productImage = await processAndUploadVideo(file);
+      // const productImage = await processAndUploadVideo(file);
+      const productImage = await uploadToS3(file);
 
       let transcript = "";
 
