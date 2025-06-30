@@ -3,7 +3,7 @@ import { notification } from "antd";
 import axios from "axios";
 import VideoRecorder from "react-video-recorder";
 import _ from "lodash";
-import { getServiceURL, processAndUploadVideo } from "../../../utils/utils";
+import { getServiceURL } from "../../../utils/utils";
 import { getAuthToken } from "../../../utils/_hooks";
 import { config } from "../../../config";
 import "../AddProduct.scss";
@@ -62,8 +62,21 @@ const UploadVideoStep = ({ updateStore, setActiveStep }) => {
       // Extract the file from FormData
       const file = formData.get("image");
       // Upload to S3
-      // const productImage = await processAndUploadVideo(file);
-      const productImage = await uploadToS3(file);
+
+      const formDataUpload = new FormData();
+      formDataUpload.append("video", file);
+
+      // Send to backend for conversion
+      const response = await axios.post(`${URL}/fileupload/convert`, formDataUpload, {
+        responseType: "blob"
+      });
+
+      // Create a new File from the response blob
+      const processedFile = new File([response.data], `processed-${file.name}`, {
+        type: "video/mp4"
+      });
+
+      const productImage = await uploadToS3(processedFile);
 
       let transcript = "";
 

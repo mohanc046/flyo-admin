@@ -1,11 +1,15 @@
 import React, { useEffect } from "react";
 import Lottie from "lottie-react";
 import successAnimation from "../../../assets/lottie/success.json";
+import { useNavigate } from "react-router-dom";
 
-const DoneStep = ({ createProduct }) => {
+const DoneStep = () => {
+  const navigate = useNavigate();
   useEffect(() => {
-    createProduct();
-  }, [createProduct]);
+    setTimeout(() => {
+      navigate("/product-list");
+    }, 2000);
+  }, []);
 
   return (
     <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>

@@ -4,7 +4,7 @@ import { getServiceURL } from "../../../utils/utils";
 import { getAuthToken } from "../../../utils/_hooks";
 import _ from "lodash";
 
-const ProductDetails = ({ updateStore, mainState }) => {
+const ProductDetails = ({ updateStore, mainState, createProduct }) => {
   const [state, setState] = useState({
     productName: "",
     productDescription: "",
@@ -37,12 +37,11 @@ const ProductDetails = ({ updateStore, mainState }) => {
         gstPercentage: mainState.gstPercentage || ""
       }));
     }
-
   }, [mainState]);
 
   useEffect(() => {
     getCategoryList();
-  }, [])
+  }, []);
 
   const getCategoryList = async () => {
     try {

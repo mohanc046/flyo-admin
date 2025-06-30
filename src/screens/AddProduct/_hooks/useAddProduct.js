@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { setTitle } from "../../../store/reducers/headerTitleSlice";
 import { showToast } from "../../../store/reducers/toasterSlice";
-import { formatDomainName, getServiceURL, processAndUploadVideo } from "../../../utils/utils";
+import { formatDomainName, getServiceURL } from "../../../utils/utils";
 import { hideSpinner, showSpinner } from "../../../store/reducers/spinnerSlice";
 import { getAuthToken } from "../../../utils/_hooks";
 import { useNavigate } from "react-router-dom";
@@ -152,21 +152,38 @@ export const useAddProduct = () => {
     try {
       dispatch(showSpinner());
       const URL = getServiceURL();
+
       // Extract the file from FormData
-      const file = mainState?.videoUrl.get("image");
+      const file = mainState?.videoUrl?.get("image");
+      if (!file) {
+        throw new Error("No video file selected.");
+      }
+
+      // Prepare form data to send to backend for FFmpeg conversion
+      const formData = new FormData();
+      formData.append("video", file);
+
+      // Send to backend for conversion
+      const response = await axios.post(`${URL}/fileupload/convert`, formData, {
+        responseType: "blob"
+      });
+
+      // Create a new File from the response blob
+      const processedFile = new File([response.data], `processed-${file.name}`, {
+        type: "video/mp4"
+      });
+
       // Upload to S3
+      const productImage = await uploadToS3(processedFile);
 
-      // const productImage = await processAndUploadVideo(file);
-      const productImage = await uploadToS3(file);
-
+      // Initialize empty transcript
       let transcript = "";
 
+      // Try extracting transcript from video
       try {
         const videoResponse = await axios.post(
           `${URL}/fileupload/extract-video-text`,
-          {
-            videoUrl: productImage
-          },
+          { videoUrl: productImage },
           {
             headers: {
               Authorization: `Bearer ${getAuthToken()}`
@@ -174,34 +191,35 @@ export const useAddProduct = () => {
           }
         );
 
-        transcript = videoResponse?.data?.transcript || ""; // Use empty string if no transcript is returned
+        transcript = videoResponse?.data?.transcript || "";
       } catch (extractionError) {
         console.warn("Video extraction failed:", extractionError);
         dispatch(
           showToast({
             type: "error",
-            title: "Error",
-            message: "Video extraction failed. Continuing with default values."
+            title: "Extraction Failed",
+            message: "Video transcription failed. Proceeding without description."
           })
         );
       }
 
+      // Update store with image and description
       updateStore({
         productDescription: transcript,
-        productImage: productImage
+        productImage
       });
 
-      // Automatically move to the next step after upload
+      // Move to next step
       setActiveStep((prevStep) => prevStep + 1);
-      dispatch(hideSpinner());
     } catch (error) {
-      dispatch(hideSpinner());
       console.error("Error uploading file:", error);
-      showToast({
-        type: "error",
-        title: "Error",
-        message: "An error occurred while uploading the file."
-      });
+      dispatch(
+        showToast({
+          type: "error",
+          title: "Upload Failed",
+          message: "An error occurred while uploading or processing the file."
+        })
+      );
     } finally {
       dispatch(hideSpinner());
     }
@@ -233,7 +251,7 @@ export const useAddProduct = () => {
         return false;
       }
     }
-    return true;
+    createProduct();
   };
 
   const createProduct = async () => {
@@ -276,9 +294,7 @@ export const useAddProduct = () => {
             message: "Products created successful!"
           })
         );
-        setTimeout(() => {
-          navigate("/product-list");
-        }, 2000);
+        setActiveStep((prevStep) => prevStep + 1);
       }
     } catch (error) {
       dispatch(
@@ -297,7 +313,6 @@ export const useAddProduct = () => {
     storeDetailsStepValidation,
     uploadStepValidation,
     detailsStepValidation,
-    createProduct,
     activeStep,
     setActiveStep,
     updateStore,

@@ -10,7 +10,6 @@ const AddProduct = () => {
   const {
     uploadStepValidation,
     detailsStepValidation,
-    createProduct,
     activeStep,
     setActiveStep,
     updateStore,
@@ -30,7 +29,7 @@ const AddProduct = () => {
     },
     {
       name: "Done",
-      component: <Done createProduct={createProduct} />,
+      component: <Done />,
       validate: () => null,
       hideBackButton: true,
       hideNextButon: true
