@@ -160,21 +160,21 @@ export const useAddProduct = () => {
       }
 
       // Prepare form data to send to backend for FFmpeg conversion
-      const formData = new FormData();
-      formData.append("video", file);
+      // const formData = new FormData();
+      // formData.append("video", file);
 
-      // Send to backend for conversion
-      const response = await axios.post(`${URL}/fileupload/convert`, formData, {
-        responseType: "blob"
-      });
+      // // Send to backend for conversion
+      // const response = await axios.post(`${URL}/fileupload/convert`, formData, {
+      //   responseType: "blob"
+      // });
 
-      // Create a new File from the response blob
-      const processedFile = new File([response.data], `processed-${file.name}`, {
-        type: "video/mp4"
-      });
+      // // Create a new File from the response blob
+      // const processedFile = new File([response.data], `processed-${file.name}`, {
+      //   type: "video/mp4"
+      // });
 
       // Upload to S3
-      const productImage = await uploadToS3(processedFile);
+      const productImage = await uploadToS3(file);
 
       // Initialize empty transcript
       let transcript = "";
