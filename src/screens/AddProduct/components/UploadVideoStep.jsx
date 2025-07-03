@@ -47,12 +47,15 @@ const UploadVideoStep = ({ updateStore, setActiveStep }) => {
   };
 
   const handleRecordedUpload = async (file) => {
-    const formData = new FormData();
-    formData.append("image", file);
-    updateStore({
-      videoUrl: formData
+    const recordedFile = new File([file], "recorded-video.webm", {
+      type: "video/webm"
     });
-    // await fileUpload(formData);
+
+    const formData = new FormData();
+    formData.append("image", recordedFile);
+    updateStore({ image: recordedFile });
+
+    await fileUpload(formData);
   };
 
   const fileUpload = async (formData) => {
