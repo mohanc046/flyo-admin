@@ -66,20 +66,20 @@ const UploadVideoStep = ({ updateStore, setActiveStep }) => {
       const file = formData.get("image");
       // Upload to S3
 
-      const formDataUpload = new FormData();
-      formDataUpload.append("video", file);
+      // const formDataUpload = new FormData();
+      // formDataUpload.append("video", file);
 
-      // Send to backend for conversion
-      const response = await axios.post(`${URL}/fileupload/convert`, formDataUpload, {
-        responseType: "blob"
-      });
+      // // Send to backend for conversion
+      // const response = await axios.post(`${URL}/fileupload/convert`, formDataUpload, {
+      //   responseType: "blob"
+      // });
 
-      // Create a new File from the response blob
-      const processedFile = new File([response.data], `processed-${file.name}`, {
-        type: "video/mp4"
-      });
+      // // Create a new File from the response blob
+      // const processedFile = new File([response.data], `processed-${file.name}`, {
+      //   type: "video/mp4"
+      // });
 
-      const productImage = await uploadToS3(processedFile);
+      const productImage = await uploadToS3(file);
 
       let transcript = "";
 
