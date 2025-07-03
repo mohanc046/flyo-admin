@@ -10,14 +10,9 @@ import {
   CRow,
   CImage,
   CModal,
-  CModalBody,
+  CModalBody
 } from "@coreui/react";
-import {
-  CAccordion,
-  CAccordionItem,
-  CAccordionBody,
-  CAccordionHeader,
-} from "@coreui/react";
+import { CAccordion, CAccordionItem, CAccordionBody, CAccordionHeader } from "@coreui/react";
 import { useNavigate } from "react-router-dom";
 import { useStoreState, useStoreActions } from "../../store/hooks";
 import { AppSidebar, AppFooter, AppHeader } from "../../components/index";
@@ -30,7 +25,7 @@ import {
   renderInputBox,
   renderDropdownTwo,
   MobileTabUI,
-  renderAddProductInputBox,
+  renderAddProductInputBox
 } from "../../utils/utilsUI";
 import "./products.css";
 import axios from "axios";
@@ -81,7 +76,7 @@ export default function Products() {
     productDescription: "",
     category: "",
     products: [],
-    isUpload: true,
+    isUpload: true
   });
 
   const myInputRef = useRef(null);
@@ -90,11 +85,7 @@ export default function Products() {
 
   const [isProductsFetchDone, setIsProductsFetchStatus] = useState(false);
 
-  const { businessName = "shopname" } = _.get(
-    existingStoreInfo,
-    "[0].store",
-    {}
-  );
+  const { businessName = "shopname" } = _.get(existingStoreInfo, "[0].store", {});
 
   let navigate = useNavigate();
 
@@ -107,9 +98,7 @@ export default function Products() {
 
   const { isLoaderEnabled = false, productList = [] } = productDetails.data;
 
-  let updateProductState = useStoreActions(
-    (action) => action.product.updateStore
-  );
+  let updateProductState = useStoreActions((action) => action.product.updateStore);
 
   const { productImage } = productDetails.data || {};
 
@@ -125,25 +114,22 @@ export default function Products() {
     const productResponse = await fetchProducts({
       storeName: businessName,
       limit: 10,
-      page: 1,
+      page: 1
     });
     if (_.get(productResponse, "statusCode") == "200") {
       const { products = [] } = productResponse;
       setIsProductsFetchStatus(true);
       setState((previousValues) => ({
         ...previousValues,
-        screen:
-          _.isEmpty(businessName) || _.isEmpty(products)
-            ? "WELCOME"
-            : "ADD_PRODUCT_IMAGE",
-        products,
+        screen: _.isEmpty(businessName) || _.isEmpty(products) ? "WELCOME" : "ADD_PRODUCT_IMAGE",
+        products
       }));
     }
   };
 
   const handleMaxFileLimitReached = (videoSizeInMB) => {
     alert(`Video size exceeds the 10MB limit. Current size: ${videoSizeInMB.toFixed(2)} MB`);
-  }
+  };
 
   const handleFileUpload = async (e) => {
     e.preventDefault();
@@ -154,7 +140,7 @@ export default function Products() {
     const fileSizeInMB = file.size / (1024 * 1024); // Convert size to MB
     if (fileSizeInMB > MAX_VIDEO_SIZE_MB) {
       // Show an error toast or alert
-      handleMaxFileLimitReached(fileSizeInMB)
+      handleMaxFileLimitReached(fileSizeInMB);
       return; // Prevent upload
     }
 
@@ -162,16 +148,21 @@ export default function Products() {
     formData.append("image", file);
     await fileUpload(formData);
   };
-  const handleRecordedUpload = async (file, ) => {
+  const handleRecordedUpload = async (file) => {
+    const recordedFile = new File([file], "recorded-video.webm", {
+      type: "video/webm"
+    });
+
     const formData = new FormData();
-    formData.append("image", file);
+    formData.append("image", recordedFile);
+
     try {
-        await fileUpload(formData);
-        console.log('File uploaded successfully');
+      await fileUpload(formData);
+      console.log("File uploaded successfully");
     } catch (error) {
-        console.error('Error uploading file:', error);
+      console.error("Error uploading file:", error);
     }
-};
+  };
 
   const fileUpload = async (formData) => {
     try {
@@ -183,27 +174,22 @@ export default function Products() {
         method: "POST",
         body: formData,
         headers: {
-          Authorization: `Bearer ${authToken}`,
-        },
+          Authorization: `Bearer ${authToken}`
+        }
       });
       if (response.ok) {
         const responseJSON = await response.json();
         const productImage = _.get(responseJSON, "imagePath");
 
-        let videoResponse = await axios.post(
-          `${URL}/fileupload/extract-video-text`,
-          { videoUrl: productImage }
-        );
+        let videoResponse = await axios.post(`${URL}/fileupload/extract-video-text`, {
+          videoUrl: productImage
+        });
 
-        const {
-          message = "",
-          transcript = "",
-          status = false,
-        } = videoResponse?.data || {};
+        const { message = "", transcript = "", status = false } = videoResponse?.data || {};
 
         notification.open({
           type: status ? "success" : "error",
-          message: message,
+          message: message
         });
 
         updateProductState({ productImage, productDescription: transcript });
@@ -212,18 +198,18 @@ export default function Products() {
 
         notification.open({
           type: "success",
-          message: "Product Image uploaded successful!",
+          message: "Product Image uploaded successful!"
         });
 
         setState({
           ...state,
           screen: "ADD_PRODUCT_DETAILS",
-          productDescription: transcript,
+          productDescription: transcript
         });
       } else {
         notification.open({
           type: "warning",
-          message: "Facing issue with image upload!",
+          message: "Facing issue with image upload!"
         });
       }
     } catch (error) {
@@ -244,7 +230,7 @@ export default function Products() {
       price,
       productName,
       category,
-      productDescription,
+      productDescription
     } = state;
     const payload = {
       productName,
@@ -254,7 +240,7 @@ export default function Products() {
       images: [productImage],
       discountPrice,
       inventory: { quantity, sizes: [sizes], colors: [colors] },
-      orderDetails: { shippingWeight, barcode, gstPercentage },
+      orderDetails: { shippingWeight, barcode, gstPercentage }
     };
     if (
       [
@@ -268,12 +254,12 @@ export default function Products() {
         sizes,
         colors,
         shippingWeight,
-        gstPercentage,
+        gstPercentage
       ].includes("")
     ) {
       return notification.open({
         type: "warning",
-        message: "Kindly Provide all the required fields",
+        message: "Kindly Provide all the required fields"
       });
     }
     try {
@@ -283,15 +269,15 @@ export default function Products() {
         body: JSON.stringify(payload),
         headers: {
           Authorization: `Bearer ${authToken}`,
-          "content-type": "application/json",
-        },
+          "content-type": "application/json"
+        }
       });
       if (response.ok) {
         await response.json();
         updateProductState({ isLoaderEnabled: false });
         notification.open({
           type: "success",
-          message: "Products created successful!",
+          message: "Products created successful!"
         });
         updateProductState({});
         setState({ ...state, screen: "PUBLISH", tabName: "Publish" });
@@ -300,7 +286,7 @@ export default function Products() {
     } catch (error) {
       notification.open({
         type: "warning",
-        message: "Issue while creation products",
+        message: "Issue while creation products"
       });
     } finally {
       updateProductState({ isLoaderEnabled: false });
@@ -311,7 +297,7 @@ export default function Products() {
     try {
       const response = await fetch(`${getServiceURL()}/category`, {
         method: "GET",
-        headers: { Authorization: `Bearer ${authToken}` },
+        headers: { Authorization: `Bearer ${authToken}` }
       });
       if (response.ok) {
         const data = await response.json();
@@ -322,7 +308,7 @@ export default function Products() {
         setState({
           ...state,
           screen: "WELCOME",
-          categoryList: list,
+          categoryList: list
         });
       }
     } catch (error) {
@@ -338,21 +324,18 @@ export default function Products() {
           className="add-product-modal"
           visible={true}
           onClose={() => console.log(false)}
-          aria-labelledby="VerticallyCenteredExample"
-        >
+          aria-labelledby="VerticallyCenteredExample">
           <CModalBody>
             <CImage align="center" src={config.CHECK} height={120} />
             <br />
             {renderTitle("Your Online Shop is Ready to Fly", "title")}
-            <div className="sub-title">
-              Start adding products to your online shop now.
-            </div>
+            <div className="sub-title">Start adding products to your online shop now.</div>
             {renderButton({
               name: "Add Products",
               className: "add-products primary-color button btn",
               onClick: () => {
                 setState({ ...state, screen: "ADD_PRODUCT_IMAGE" });
-              },
+              }
               // styles: {}
             })}
             <div className="label">Store Settings</div>
@@ -362,63 +345,46 @@ export default function Products() {
     );
   };
 
-  const blobToFile = (theBlob, fileName = 'video.mp4') => {
+  const blobToFile = (theBlob, fileName = "video.mp4") => {
     // Ensure the filename ends with .mp4
-    if (!fileName.endsWith('.mp4')) {
-      fileName += '.mp4';
+    if (!fileName.endsWith(".mp4")) {
+      fileName += ".mp4";
     }
 
-        // Get the size of the Blob in bytes
-        const videoSizeInBytes = theBlob.size; // Size in bytes
-        const videoSizeInMB = videoSizeInBytes / (1024 * 1024); // Convert to MB
-    
-        console.log('Video Size:', videoSizeInBytes, 'bytes');
-        console.log('Video Size:', videoSizeInMB.toFixed(2), 'MB'); // Log size in MB
+    // Get the size of the Blob in bytes
+    const videoSizeInBytes = theBlob.size; // Size in bytes
+    const videoSizeInMB = videoSizeInBytes / (1024 * 1024); // Convert to MB
 
-    return new File(
-      [theBlob],
-      fileName,
-      {
-        lastModified: new Date().getTime(),
-        type: 'video/mp4', // Explicitly set the MIME type to mp4
-      }
-    );
+    console.log("Video Size:", videoSizeInBytes, "bytes");
+    console.log("Video Size:", videoSizeInMB.toFixed(2), "MB"); // Log size in MB
+
+    return new File([theBlob], fileName, {
+      lastModified: new Date().getTime(),
+      type: "video/mp4" // Explicitly set the MIME type to mp4
+    });
   };
-
 
   const renderADDProductImage = () => {
     return (
       <Fragment className="fragment">
-        <CImage style={{marginBottom: 20}} align="center" src={config.LOGO_BLUE} height={75} />
+        <CImage style={{ marginBottom: 20 }} align="center" src={config.LOGO_BLUE} height={75} />
         {renderTitle("Start adding products", "add-product-title")}
-        {renderTitle('Only videos under 10MB in size can be uploaded.')}
+        {renderTitle("Only videos under 10MB in size can be uploaded.")}
         {renderTitle("Add Product Video", "add-product-sub-title", false)}
 
         <div className="addProductDraggerContainer">
           <img className="upload-icon" src={config.UPLOAD_ICON} />
-          <label className="addProductDraggerLabel">
-            Drag & Drop Files Here
-          </label>
-          <label
-            className="addProductDraggerLabel"
-            style={{ marginTop: "-10px" }}
-          >
+          <label className="addProductDraggerLabel">Drag & Drop Files Here</label>
+          <label className="addProductDraggerLabel" style={{ marginTop: "-10px" }}>
             Or
           </label>
           <div className="position-relative">
             <button>Browse</button>
-            <input
-              onChange={handleFileUpload}
-              className="file-input"
-              type="file"
-            />
+            <input onChange={handleFileUpload} className="file-input" type="file" />
           </div>
 
           {/* Record Button to toggle recording */}
-          <div
-            className="button-div"
-            onClick={() => setState({ ...state, isUpload: false })}
-          >
+          <div className="button-div" onClick={() => setState({ ...state, isUpload: false })}>
             Record
           </div>
 
@@ -442,25 +408,24 @@ export default function Products() {
           // </Fragment>
           <></>
         ) : (
+          <div>
+            <VideoRecorder
+              isFlipped={true}
+              showReplayControls={true}
+              type={"video/mp4"}
+              onRecordingComplete={async (videoBlob) => {
+                const videoSizeInMB = videoBlob.size / (1024 * 1024); // Calculate size in MB
 
-<div>
-    <VideoRecorder
-        isFlipped={true}
-        showReplayControls={true}
-        type={'video/mp4'}
-        onRecordingComplete={async (videoBlob) => {
-            const videoSizeInMB = videoBlob.size / (1024 * 1024); // Calculate size in MB
+                if (videoSizeInMB > MAX_VIDEO_SIZE_MB) {
+                  // Show an error toast
+                  handleMaxFileLimitReached(videoSizeInMB);
+                  return; // Prevent upload
+                }
 
-            if (videoSizeInMB > MAX_VIDEO_SIZE_MB) {
-                // Show an error toast
-                handleMaxFileLimitReached(videoSizeInMB);
-                return; // Prevent upload
-            }
-
-            handleRecordedUpload(blobToFile(videoBlob));
-        }}
-    />
-</div>
+                handleRecordedUpload(blobToFile(videoBlob));
+              }}
+            />
+          </div>
         )}
 
         <input
@@ -481,10 +446,10 @@ export default function Products() {
               } else {
                 notification.open({
                   type: "error",
-                  message: "please upload a valid product video",
+                  message: "please upload a valid product video"
                 });
               }
-            },
+            }
           })}
         </div>
       </Fragment>
@@ -510,9 +475,7 @@ export default function Products() {
           <div className="flex flexCol with75">
             <CAccordion className="add-product-details" activeItemKey={1}>
               <CAccordionItem itemKey={1}>
-                <CAccordionHeader>
-                  {renderTitle("Add Product Details")}
-                </CAccordionHeader>
+                <CAccordionHeader>{renderTitle("Add Product Details")}</CAccordionHeader>
                 <CAccordionBody>
                   {renderAddProductInputBox({
                     name: "productName",
@@ -520,7 +483,7 @@ export default function Products() {
                     required: true,
                     placeholder: "Enter Product Name",
                     className: "add-product-form-field",
-                    onChange: updateAndValidateFormField,
+                    onChange: updateAndValidateFormField
                   })}
                   {renderAddProductInputBox({
                     name: "productDescription",
@@ -528,7 +491,7 @@ export default function Products() {
                     required: true,
                     placeholder: "Enter Product Description",
                     className: "add-product-form-field",
-                    onChange: updateAndValidateFormField,
+                    onChange: updateAndValidateFormField
                   })}
                   {renderDropdownTwo({
                     className: "with50",
@@ -537,9 +500,8 @@ export default function Products() {
                     list: state.categoryList,
                     required: true,
                     className: "add-product-form-field inputAlign",
-                    placeholder:
-                      "Enter category name (Like Foods, Kids Care etc)",
-                    onChange: updateAndValidateFormField,
+                    placeholder: "Enter category name (Like Foods, Kids Care etc)",
+                    onChange: updateAndValidateFormField
                   })}
                   <div className="flex position-relative">
                     {renderAddProductInputBox({
@@ -550,7 +512,7 @@ export default function Products() {
                       type: "number",
                       placeholder: "Enter price",
                       className: "add-product-form-field",
-                      onChange: updateAndValidateFormField,
+                      onChange: updateAndValidateFormField
                     })}
                     <div className="with20px"></div>
                     {renderAddProductInputBox({
@@ -561,13 +523,12 @@ export default function Products() {
                       type: "number",
                       placeholder: "Enter discounted price",
                       className: "add-product-form-field",
-                      onChange: updateAndValidateFormField,
+                      onChange: updateAndValidateFormField
                     })}
                     <div className="discount-notice">
                       <p>
-                        No discount campaign created currently. you create it
-                        later from dashboard after once you open shop and select
-                        that from here at next time.
+                        No discount campaign created currently. you create it later from dashboard
+                        after once you open shop and select that from here at next time.
                       </p>
                     </div>
                   </div>
@@ -581,7 +542,7 @@ export default function Products() {
                       type: "number",
                       placeholder: "Enter quantity",
                       className: "add-product-form-field",
-                      onChange: updateAndValidateFormField,
+                      onChange: updateAndValidateFormField
                     })}
                     <div className="flex">
                       {renderDropdown({
@@ -593,7 +554,7 @@ export default function Products() {
                         placeholder: "Add Sizes",
                         className: "add-product-form-field",
                         onChange: updateAndValidateFormField,
-                        hideStar: true,
+                        hideStar: true
                       })}
                       <div className="with20px"></div>
                       {renderDropdown({
@@ -605,7 +566,7 @@ export default function Products() {
                         placeholder: "Add Colors",
                         className: "add-product-form-field",
                         onChange: updateAndValidateFormField,
-                        hideStar: true,
+                        hideStar: true
                       })}
                     </div>
                   </Col>
@@ -615,9 +576,7 @@ export default function Products() {
 
             <CAccordion activeItemKey={1} className="add-product-details">
               <CAccordionItem itemKey={1}>
-                <CAccordionHeader>
-                  {renderTitle("Order Details")}
-                </CAccordionHeader>
+                <CAccordionHeader>{renderTitle("Order Details")}</CAccordionHeader>
                 <CAccordionBody>
                   <div className="flex">
                     {renderDropdown({
@@ -629,7 +588,7 @@ export default function Products() {
                       placeholder: "Shipment Weight (Kg)",
                       className: "add-product-form-field",
                       onChange: updateAndValidateFormField,
-                      hideStar: true,
+                      hideStar: true
                     })}
                     <div className="with20px"></div>
                     {renderDropdown({
@@ -639,7 +598,7 @@ export default function Products() {
                       list: [""],
                       placeholder: "Add Barcode",
                       className: "add-product-form-field",
-                      onChange: updateAndValidateFormField,
+                      onChange: updateAndValidateFormField
                     })}
                   </div>
                   {renderAddProductInputBox({
@@ -649,7 +608,7 @@ export default function Products() {
                     type: "number",
                     placeholder: "Enter GST Percentage",
                     className: "add-product-form-field",
-                    onChange: updateAndValidateFormField,
+                    onChange: updateAndValidateFormField
                   })}
                 </CAccordionBody>
               </CAccordionItem>
@@ -663,7 +622,7 @@ export default function Products() {
             loaderStatus: isLoaderEnabled,
             onClick: () => {
               createProduct();
-            },
+            }
           })}
           {renderButton({
             name: "Publish",
@@ -671,7 +630,7 @@ export default function Products() {
             className: "add-prod-publish-button",
             onClick: () => {
               createProduct();
-            },
+            }
           })}
         </div>
       </div>
@@ -681,10 +640,7 @@ export default function Products() {
   const renderPreviewButton = () => {
     return (
       <div className="buttonContainer width36">
-        <label
-          className="buttonLabelContainer"
-          onClick={() => navigate("/preview")}
-        >
+        <label className="buttonLabelContainer" onClick={() => navigate("/preview")}>
           Preview
         </label>
       </div>
@@ -718,14 +674,14 @@ export default function Products() {
                 value: state.productName,
                 placeholder: "Enter Product Name",
                 onChange: updateAndValidateFormField,
-                required: true,
+                required: true
               })}
               {renderInputBox({
                 name: "productDescription",
                 value: state.productDescription,
                 placeholder: "Enter Product Description",
                 onChange: updateAndValidateFormField,
-                required: true,
+                required: true
               })}
               {renderDropdownTwo({
                 name: "category",
@@ -734,7 +690,7 @@ export default function Products() {
                 required: true,
                 className: "add-product-form-field-select",
                 placeholder: "Enter category name",
-                onChange: updateAndValidateFormField,
+                onChange: updateAndValidateFormField
               })}
               {renderInputBox({
                 required: true,
@@ -742,7 +698,7 @@ export default function Products() {
                 value: state.price,
                 type: "number",
                 placeholder: "Enter price",
-                onChange: updateAndValidateFormField,
+                onChange: updateAndValidateFormField
               })}
               {renderInputBox({
                 required: true,
@@ -750,7 +706,7 @@ export default function Products() {
                 value: state.discountPrice,
                 type: "number",
                 placeholder: "Enter discounted price",
-                onChange: updateAndValidateFormField,
+                onChange: updateAndValidateFormField
               })}
             </CAccordionBody>
           </CAccordionItem>
@@ -765,7 +721,7 @@ export default function Products() {
                 required: true,
                 list: ["1", "2", "3", "4", "5"],
                 placeholder: "Shipment Weight (Kg)",
-                onChange: updateAndValidateFormField,
+                onChange: updateAndValidateFormField
               })}
               {renderDropdown({
                 name: "barcode",
@@ -773,7 +729,7 @@ export default function Products() {
                 required: false,
                 list: [""],
                 placeholder: "Add Barcode",
-                onChange: updateAndValidateFormField,
+                onChange: updateAndValidateFormField
               })}
               {renderInputBox({
                 name: "gstPercentage",
@@ -781,7 +737,7 @@ export default function Products() {
                 required: true,
                 type: "number",
                 placeholder: "Enter GST Percentage",
-                onChange: updateAndValidateFormField,
+                onChange: updateAndValidateFormField
               })}
             </CAccordionBody>
           </CAccordionItem>
@@ -796,7 +752,7 @@ export default function Products() {
                 type: "number",
                 required: true,
                 placeholder: "Enter quantity",
-                onChange: updateAndValidateFormField,
+                onChange: updateAndValidateFormField
               })}
               {renderDropdown({
                 name: "sizes",
@@ -804,7 +760,7 @@ export default function Products() {
                 required: true,
                 list: ["", "1", "2", "3", "4", "5", "6"],
                 placeholder: "Add Sizes",
-                onChange: updateAndValidateFormField,
+                onChange: updateAndValidateFormField
               })}
               {renderDropdown({
                 name: "colors",
@@ -812,7 +768,7 @@ export default function Products() {
                 required: true,
                 list: ["red", "blue", "white"],
                 placeholder: "Add Colors",
-                onChange: updateAndValidateFormField,
+                onChange: updateAndValidateFormField
               })}
             </CAccordionBody>
           </CAccordionItem>
@@ -841,18 +797,16 @@ export default function Products() {
             name: "START 14 DAYS FREE TRAIL & PUBLISH",
             onClick: () => {
               navigate("/product-list");
-            },
+            }
           })}
           <br></br>
           <div className="FORT12">
-            Within Trail period you can access.., <br></br> Create Shop, Add
-            Product Video, Launch Shop, <br></br> Sell Items, Track Shipping &
-            Business Reports etc{" "}
+            Within Trail period you can access.., <br></br> Create Shop, Add Product Video, Launch
+            Shop, <br></br> Sell Items, Track Shipping & Business Reports etc{" "}
           </div>
           <br></br>
           <div className="BOLD FORT12">
-            Try Advanced Features with,{" "}
-            <span className="underline">GO PREMIUM</span>
+            Try Advanced Features with, <span className="underline">GO PREMIUM</span>
           </div>
         </div>
       </div>
@@ -873,8 +827,7 @@ export default function Products() {
                     <CCardBody>
                       <CForm>
                         {state.screen === "WELCOME" && renderWelcomeUI()}
-                        {state.screen === "ADD_PRODUCT_IMAGE" &&
-                          renderADDProductImage()}
+                        {state.screen === "ADD_PRODUCT_IMAGE" && renderADDProductImage()}
                       </CForm>
                     </CCardBody>
                   </CCard>
@@ -890,11 +843,9 @@ export default function Products() {
   const renderDeskTopVersion = () => {
     return (
       <Fragment>
-        {["WELCOME", "ADD_PRODUCT_IMAGE"].includes(state.screen) &&
-          renderWelcomePage()}
+        {["WELCOME", "ADD_PRODUCT_IMAGE"].includes(state.screen) && renderWelcomePage()}
         <div className="flex justifyContent">
-          {["ADD_PRODUCT_DETAILS"].includes(state.screen) &&
-            renderProductDetails()}
+          {["ADD_PRODUCT_DETAILS"].includes(state.screen) && renderProductDetails()}
           {["PREMIUM"].includes(state.screen) && renderPremiumPage()}
         </div>
       </Fragment>
@@ -926,9 +877,7 @@ export default function Products() {
             </div>
 
             <div className="shareButtonContainer">
-              <label className="shareButtonLabel width100">
-                Connect Domain
-              </label>
+              <label className="shareButtonLabel width100">Connect Domain</label>
             </div>
           </div>
         </div>
@@ -947,13 +896,10 @@ export default function Products() {
     return (
       <Fragment>
         <div className="mobileLoginLayout">
-          {(_.isEmpty(businessName) || _.isEmpty(state.products)) &&
-            MobileTabUI(state.tabName)}
-          {["WELCOME", "ADD_PRODUCT_IMAGE"].includes(state.screen) &&
-            renderWelcomePage()}
+          {(_.isEmpty(businessName) || _.isEmpty(state.products)) && MobileTabUI(state.tabName)}
+          {["WELCOME", "ADD_PRODUCT_IMAGE"].includes(state.screen) && renderWelcomePage()}
           <div className="flex justifyContent fullWidth">
-            {["ADD_PRODUCT_DETAILS"].includes(state.screen) &&
-              renderMobileProductDetails()}
+            {["ADD_PRODUCT_DETAILS"].includes(state.screen) && renderMobileProductDetails()}
             {["PUBLISH"].includes(state.screen) && renderPublishScreen()}
             {["PREMIUM"].includes(state.screen) && renderPremiumPage()}
           </div>

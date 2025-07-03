@@ -3,12 +3,14 @@ import { useNavigate } from "react-router-dom";
 import Lottie from "lottie-react";
 import successAnimation from "../../../../../assets/lottie/success.json";
 
-const DoneStep = ({ createProduct }) => {
+const DoneStep = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    createProduct();
-  }, [navigate, createProduct]);
+    setTimeout(() => {
+      navigate("/dashboard");
+    }, 2000);
+  }, []);
 
   return (
     <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
