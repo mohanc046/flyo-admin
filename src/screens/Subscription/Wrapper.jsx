@@ -1,24 +1,14 @@
 import React, { useEffect, useState } from "react";
-import {
-  CardElement,
-  useStripe,
-  useElements,
-  Elements,
-} from "@stripe/react-stripe-js";
+import { CardElement, useStripe, useElements, Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
-import {
-  Container,
-  Card,
-  Button,
-  Alert,
-  Form,
-  Spinner,
-} from "react-bootstrap";
+import { Container, Card, Button, Alert, Form, Spinner } from "react-bootstrap";
 import { getStoreInfo, getUserProfile } from "../../utils/_hooks";
 import _ from "lodash";
 
 // Load Stripe
-const stripePromise = loadStripe("pk_test_51QhaAgETfYJwWWxsBv4cnsTFBhul2GFeoXKMEmO5VvFnuomNsdMdJzZgnZ8FX1gzcb7Ri2Z6Yj7IPwNmKx2nGfvg00GgoToekw");
+const stripePromise = loadStripe(
+  "pk_test_51QhaAgETfYJwWWxsBv4cnsTFBhul2GFeoXKMEmO5VvFnuomNsdMdJzZgnZ8FX1gzcb7Ri2Z6Yj7IPwNmKx2nGfvg00GgoToekw"
+);
 
 // Card styling for Stripe
 const CARD_OPTIONS = {
@@ -27,16 +17,21 @@ const CARD_OPTIONS = {
       fontSize: "16px",
       color: "#212529",
       "::placeholder": {
-        color: "#adb5bd",
-      },
+        color: "#adb5bd"
+      }
     },
     invalid: {
-      color: "#dc3545",
-    },
-  },
+      color: "#dc3545"
+    }
+  }
 };
 
-const SubscriptionForm = ({ isSubscriptionCreationSuccess, subscriptionErrorMessage, paymentLoaderStatus, initiatePaymentSchedule }) => {
+const SubscriptionForm = ({
+  isSubscriptionCreationSuccess,
+  subscriptionErrorMessage,
+  paymentLoaderStatus,
+  initiatePaymentSchedule
+}) => {
   const stripe = useStripe();
   const elements = useElements();
   const [message, setMessage] = useState("");
@@ -50,8 +45,7 @@ const SubscriptionForm = ({ isSubscriptionCreationSuccess, subscriptionErrorMess
     if (!_.isEmpty(subscriptionErrorMessage)) {
       setMessage({ type: "danger", text: subscriptionErrorMessage });
     }
-  }, [isSubscriptionCreationSuccess, subscriptionErrorMessage])
-
+  }, [isSubscriptionCreationSuccess, subscriptionErrorMessage]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -67,8 +61,8 @@ const SubscriptionForm = ({ isSubscriptionCreationSuccess, subscriptionErrorMess
       card: cardElement,
       billing_details: {
         name: "Shan Abbas",
-        email: "shan@example.com",
-      },
+        email: "shan@example.com"
+      }
     });
 
     setLoading(false);
@@ -78,19 +72,18 @@ const SubscriptionForm = ({ isSubscriptionCreationSuccess, subscriptionErrorMess
       return;
     }
 
-    // make an API to initiate the create 
-    const storeName = getStoreInfo()?.store?.domainName
+    // make an API to initiate the create
+    const storeName = getStoreInfo()?.store?.domainName;
 
     if (!_.isEmpty(storeName)) {
-      await initiatePaymentSchedule ({
+      await initiatePaymentSchedule({
         storeName,
-        firstName: getUserProfile()?.firstName,
+        firstName: getUserProfile()?.firstName || getUserProfile()?.email?.split("@")[0],
         email: getUserProfile()?.email,
         phone: "+1234561449",
         paymentMethodId: paymentMethod.id
-      })
-    }
-    else {
+      });
+    } else {
       setMessage({ type: "danger", text: "Invalid store access!" });
       return;
     }
@@ -108,7 +101,11 @@ const SubscriptionForm = ({ isSubscriptionCreationSuccess, subscriptionErrorMess
 
           <div className="d-grid">
             <Button type="submit" disabled={!stripe || loading}>
-              {(loading || paymentLoaderStatus) ? <Spinner size="sm" animation="border" /> : "Start Subscription"}
+              {loading || paymentLoaderStatus ? (
+                <Spinner size="sm" animation="border" />
+              ) : (
+                "Start Subscription"
+              )}
             </Button>
           </div>
 
@@ -124,9 +121,11 @@ const SubscriptionForm = ({ isSubscriptionCreationSuccess, subscriptionErrorMess
 };
 
 const SubscriptionFormWrapper = ({ state, initiatePaymentSchedule }) => {
- return  <Elements stripe={stripePromise}>
-   <SubscriptionForm {...state} initiatePaymentSchedule={initiatePaymentSchedule} />
-  </Elements>
-}
+  return (
+    <Elements stripe={stripePromise}>
+      <SubscriptionForm {...state} initiatePaymentSchedule={initiatePaymentSchedule} />
+    </Elements>
+  );
+};
 
 export default SubscriptionFormWrapper;
